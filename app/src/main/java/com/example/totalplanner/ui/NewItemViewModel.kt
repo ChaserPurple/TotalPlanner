@@ -1,7 +1,5 @@
 package com.example.totalplanner.ui
 
-import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,13 +13,10 @@ import com.example.totalplanner.data.toMyColor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.zip
-import java.util.logging.Logger
 
 //Because no application data is requested when adding a new item to the agenda,
 //viewModel only has functions, and no variables outside of uiState
@@ -267,7 +262,7 @@ class NewItemViewModel(
      */
     suspend fun saveTask(task: Task, events: List<Pair<Pair<MyDate,MyDate>,Int>>){
         val id = taskDAO.insertTask(task)
-        events.forEach(){
+        events.forEach{
             saveEvent(Event(
                 name = task.name,
                 description = task.description,

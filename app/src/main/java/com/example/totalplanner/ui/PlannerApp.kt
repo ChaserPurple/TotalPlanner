@@ -28,7 +28,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.totalplanner.R
 import com.example.totalplanner.data.MyDate
-import com.example.totalplanner.data.SettingsRepo
 import com.example.totalplanner.data.room.AgendaDatabase
 import com.example.totalplanner.data.room.EventDAO
 import com.example.totalplanner.data.room.TaskDAO
@@ -114,9 +113,9 @@ fun PlannerApp(
         factory = SettingsViewModel.Factory
     )
     val newItemViewModel = NewItemViewModel(
-        taskDAO,
-        eventDAO,
-        settingsViewModel.settingsRepo
+        taskDAO = taskDAO,
+        eventDAO = eventDAO,
+        settingsRepo = settingsViewModel.settingsRepo
     )
     val scheduleViewModel = ScheduleViewModel(
         taskDAO = taskDAO,
@@ -157,7 +156,7 @@ fun PlannerApp(
                 }
             }
         },
-        settingsViewModel.settingsRepo
+        settingsRepo = settingsViewModel.settingsRepo
     )
 
     Scaffold(
@@ -226,7 +225,8 @@ fun AppPreview() {
     TotalPlannerTheme {
         Surface{
             PlannerApp(
-                windowSizeClass = WindowWidthSizeClass.Compact
+                windowSizeClass = WindowWidthSizeClass.Compact,
+                modifier = Modifier.fillMaxSize()
             )
             /*NewEventDialogue(
                 updateFirstDate = {},

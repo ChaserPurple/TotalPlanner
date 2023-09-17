@@ -1,12 +1,9 @@
 package com.example.totalplanner.ui
 
-import android.R.drawable
 import android.content.res.Resources
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,8 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,11 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.totalplanner.R
 import com.example.totalplanner.data.MyDate
 import com.example.totalplanner.data.Weekday
 import com.example.totalplanner.data.room.Event
@@ -78,15 +70,22 @@ fun WeeklyScreen (
     val horizontalScroll = rememberScrollState()
     val verticalScroll = rememberScrollState()
     Column (modifier = modifier){
-        WeeklyTopBar(
-            Modifier
+        ScheduleTopBar(
+            modifier =Modifier
                 .height(topBarHeight)
                 .fillMaxWidth(),
-            screenUI.value.weekDate,
-            topBarHeight,
-            {viewModel.updateWeekDate(screenUI.value.weekDate.addDays(it))},
-            settingsUIState.value.americanDates,
-            settingsUIState.value.hour24
+            text = if(settingsUIState.value.americanDates)
+                       "${screenUI.value.weekDate.toAmericanString()} - " +
+                       screenUI.value.weekDate.addDays(6).toAmericanString()
+                   else
+                       "${screenUI.value.weekDate.toEuropeanString()} - " +
+                       screenUI.value.weekDate.addDays(6).toEuropeanString(),
+            prevAction = {
+                viewModel.updateWeekDate(screenUI.value.weekDate.addDays(-7))
+                         },
+            nextAction = {
+                viewModel.updateWeekDate(screenUI.value.weekDate.addDays(7))
+            }
         )
         Row {
             HourMarkers(
@@ -131,52 +130,6 @@ fun WeeklyScreen (
     }
 }
 
-//My own top app bar, because Material Design is a tyrant and I want
-//the title in between 2 buttons, and why is a TOP BAR experimental?
-//I'm beginning to think Composable wasn't very well thought out...
-@Composable
-fun WeeklyTopBar(
-    modifier: Modifier = Modifier,
-    startDate: MyDate,
-    height: Dp,
-    changeDate:(Int) -> Unit,
-    americanDates: Boolean,
-    hour24: Boolean
-){
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        shape = RectangleShape
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(height),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            IconButton(onClick = {changeDate(-7)}) {
-                Icon(
-                    painter = painterResource(drawable.arrow_up_float),
-                    contentDescription = stringResource(R.string.last_week)
-                )
-            }
-            Text(if(americanDates) "${startDate.toAmericanString()} - " +
-                    "${startDate.addDays(6).toAmericanString()}"
-                 else "${startDate.toEuropeanString()} - " +
-                    "${startDate.addDays(6).toEuropeanString()}")
-            IconButton(onClick = {changeDate(7)}) {
-                Icon(
-                    painter = painterResource(drawable.arrow_down_float),
-                    contentDescription = stringResource(R.string.next_week)
-                )
-            }
-        }
-    }
-}
 @Composable
 fun HourMarkers(
     modifier: Modifier = Modifier,
@@ -254,6 +207,7 @@ fun WeeklyBackground(modifier: Modifier = Modifier, width: Dp, height: Dp){
         }
     }
 }
+
 @Composable
 fun WeeklyForeground(
     modifier: Modifier = Modifier,
@@ -270,14 +224,15 @@ fun WeeklyForeground(
     redDeadlines: Boolean
 ){
     Row (modifier = modifier){
-        Weekday.values().forEach {
+        Weekday.values().forEach { weekday ->
+            val d = date.addDays(weekday.ordinal)
             ForegroundColumn(
                 modifier = Modifier.width(width),
                 width = width,
                 minuteHeight = minuteHeight,
-                date = date.addDays(it.ordinal),
-                tasks = tasks,
-                events = events,
+                date = d,
+                tasks = tasks.filter{it.deadline.sameDay(d)}.sortedBy {it.deadline},
+                events = events.filter{it.startDate.sameDay(d)}.sortedBy {it.startDate},
                 onDeleteTask = onDeleteTask,
                 onEditTask = onEditTask,
                 onDeleteEvent = onDeleteEvent,
@@ -289,6 +244,7 @@ fun WeeklyForeground(
         }
     }
 }
+//Precondition: events and tasks are sorted
 @Composable
 fun ForegroundColumn(
     modifier: Modifier = Modifier,
@@ -306,58 +262,59 @@ fun ForegroundColumn(
     redDeadlines: Boolean
 ){
     Box(modifier = modifier){
+        //Iterate through events
         var listSize = events.size
         var ndx = 0
         while(ndx  < listSize){
-            if(events[ndx].startDate.sameDay(date)) {
-                val overlappingEvents = mutableListOf(events[ndx])
-                while(ndx < listSize - 1 && !events[ndx+1].startDate.after(events[ndx].endDate)){
-                    overlappingEvents.add(events[ndx+1])
-                    ndx++
-                }
-                for((count, e) in overlappingEvents.withIndex()) {
-                    val h = minuteHeight * e.startDate.minuteDifference(e.endDate)
-                    val w = if(overlappingEvents.size == 1) width - 2.dp
-                    else (width - 2.dp) / 2
-                    val yOffset = minuteHeight * date.minuteDifference(e.startDate)
-                    val xOffset = if(count % 2 == 0) 1.dp else w
-                    EventBox(
-                        modifier = Modifier
-                            .height(h)
-                            .width(w)
-                            .offset(y = yOffset, x = xOffset),
-                        event = e,
-                        onDeleteEvent = onDeleteEvent,
-                        onEditEvent = onEditEvent,
-                        americanDates = americanDates,
-                        hour24 = hour24
-                    )
-                }
+            //Put all events that overlap each other in one list
+            val overlappingEvents = mutableListOf(events[ndx])
+            while(ndx < listSize - 1 && events[ndx+1].startDate.before(events[ndx].endDate)){
+                overlappingEvents.add(events[ndx+1])
+                ndx++
+            }
+            for((count, e) in overlappingEvents.withIndex()) {
+                val h = minuteHeight * e.startDate.minuteDifference(e.endDate)
+                val w = if(overlappingEvents.size == 1) width - 2.dp
+                        else (width - 2.dp) / 2
+                val yOffset = minuteHeight * date.minuteDifference(e.startDate)
+                val xOffset = if(count % 2 == 0) 1.dp else w
+                EventBox(
+                    modifier = Modifier
+                        .height(h)
+                        .width(w)
+                        .offset(y = yOffset, x = xOffset),
+                    event = e,
+                    onDeleteEvent = onDeleteEvent,
+                    onEditEvent = onEditEvent,
+                    americanDates = americanDates,
+                    hour24 = hour24
+                )
             }
             ndx++
         }
+        //Iterate through tasks
         listSize = tasks.size
         ndx = 0
         while(ndx < listSize){
             val t = tasks[ndx]
             val overlappingTasks = mutableListOf(t)
+            //Add each task with the same deadline to a list together
             while(ndx < listSize - 1 && tasks[ndx+1].deadline == t.deadline){
                 overlappingTasks.add(tasks[ndx+1])
                 ndx++
             }
-            if(t.deadline.sameDay(date)) {
-                TaskLine(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    offset = minuteHeight * date.minuteDifference(t.deadline),
-                    tasks = overlappingTasks,
-                    onDeleteTask = onDeleteTask,
-                    onEditTask = onEditTask,
-                    americanDates = americanDates,
-                    hour24 = hour24,
-                    redDeadlines = redDeadlines
-                )
-            }
+            //Display overlapping tasks
+            TaskLine(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                offset = minuteHeight * date.minuteDifference(t.deadline),
+                tasks = overlappingTasks,
+                onDeleteTask = onDeleteTask,
+                onEditTask = onEditTask,
+                americanDates = americanDates,
+                hour24 = hour24,
+                redDeadlines = redDeadlines
+            )
             ndx++
         }
     }

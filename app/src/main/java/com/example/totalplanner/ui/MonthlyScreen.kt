@@ -1,11 +1,9 @@
 package com.example.totalplanner.ui
 
 import android.content.res.Resources
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,8 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,22 +26,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.totalplanner.R
 import com.example.totalplanner.data.Month
 import com.example.totalplanner.data.MyDate
 import com.example.totalplanner.data.Weekday
-import com.example.totalplanner.data.room.AgendaDatabase
 import com.example.totalplanner.data.room.Event
 import com.example.totalplanner.data.room.Task
 import kotlinx.coroutines.launch
@@ -73,28 +64,27 @@ fun MonthlyScreen (
 
     val horizontalScrollState = rememberScrollState()
     Column(modifier = modifier) {
-        MonthlyTopBar(
+        ScheduleTopBar(
             modifier = Modifier
                 .height(topBarHeight)
                 .fillMaxWidth(),
-            month = screenUI.value.monthDate.month,
-            year = screenUI.value.monthDate.year,
-            height = topBarHeight,
-            changeMonth = {viewModel.updateMonthDate(
-                if(screenUI.value.monthDate.month == Month.JANUARY && it == -1)
-                    screenUI.value.monthDate.copy(
-                        month = Month.DECEMBER,
-                    )
-                else if(screenUI.value.monthDate.month == Month.DECEMBER && it == 1)
-                    screenUI.value.monthDate.copy(
-                        month = Month.JANUARY,
-                    )
-                else
-                    screenUI.value.monthDate.copy(
-                        month =
-                            Month.values()[
-                                screenUI.value.monthDate.month.ordinal + it
-                            ],
+            text = stringResource(screenUI.value.monthDate.month.monthName) +
+                    " " + screenUI.value.monthDate.year,
+            prevAction = {viewModel.updateMonthDate(
+                screenUI.value.monthDate.copy(
+                    month =
+                        Month.values()[
+                            //add 11 instead of subtracting 1 so it's never < 0
+                            (screenUI.value.monthDate.month.ordinal + 11) % 12
+                        ],
+                )
+            )},
+            nextAction = {viewModel.updateMonthDate(
+                screenUI.value.monthDate.copy(
+                    month =
+                        Month.values()[
+                            (screenUI.value.monthDate.month.ordinal + 1) % 12
+                        ],
                 )
             )}
         )
@@ -127,50 +117,6 @@ fun MonthlyScreen (
     }
 }
 
-/*
- * My own top app bar, because Material Design is a tyrant and I want
- * the title in between 2 buttons, and why is a TOP BAR experimental?
- * I'm beginning to think Composable wasn't very well thought out...
- */
-@Composable
-fun MonthlyTopBar(
-    modifier: Modifier = Modifier,
-    month: Month,
-    year: String,
-    height: Dp,
-    changeMonth:(Int) -> Unit
-){
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        shape = RectangleShape
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(height),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            IconButton(onClick = {changeMonth(-1)}) {
-                Icon(
-                    painter = painterResource(android.R.drawable.arrow_up_float),
-                    contentDescription = stringResource(R.string.last_week)
-                )
-            }
-            Text(stringResource(month.monthName) + " $year")
-            IconButton(onClick = {changeMonth(1)}) {
-                Icon(
-                    painter = painterResource(android.R.drawable.arrow_down_float),
-                    contentDescription = stringResource(R.string.next_week)
-                )
-            }
-        }
-    }
-}
 /*
  * The meat of the calendar, lays out each day and lists each day's events
  */

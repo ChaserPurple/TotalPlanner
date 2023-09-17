@@ -1,16 +1,19 @@
 package com.example.totalplanner.ui
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -28,8 +31,45 @@ import com.example.totalplanner.R
 import com.example.totalplanner.data.Weekday
 import com.example.totalplanner.data.room.Event
 import com.example.totalplanner.data.room.Task
-import java.net.CacheRequest
 
+@Composable
+fun ScheduleTopBar(
+    modifier: Modifier = Modifier,
+    text: String,
+    nextAction: () -> Unit,
+    prevAction: () -> Unit
+){
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        shape = RectangleShape
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            IconButton(onClick = prevAction) {
+                Icon(
+                    painter = painterResource(android.R.drawable.arrow_up_float),
+                    contentDescription = stringResource(R.string.previous)
+                )
+            }
+            Text(text)
+            IconButton(onClick = nextAction) {
+                Icon(
+                    painter = painterResource(android.R.drawable.arrow_down_float),
+                    contentDescription = stringResource(R.string.next)
+                )
+            }
+        }
+    }
+}
 @Composable
 fun WeekDayLabels(modifier: Modifier = Modifier, width: Dp){
     Row(

@@ -6,31 +6,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.totalplanner.data.SettingsRepo
-import com.example.totalplanner.data.room.AgendaDatabase
+import com.example.totalplanner.SettingsApplication
 import com.example.totalplanner.ui.theme.TotalPlannerTheme
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
@@ -99,12 +87,13 @@ fun SettingSwitchOption(
 @Preview(showBackground = true)
 @Composable
 fun SettingsPreview(){
+    val settingsApp = SettingsApplication()
     TotalPlannerTheme {
         Surface{
             SettingsScreen(
                 modifier = Modifier.fillMaxSize(),
-                viewModel = viewModel(
-                    factory = SettingsViewModel.Factory
+                viewModel = SettingsViewModel(
+                    settingsApp.settingsRepo
                 )
             )
         }

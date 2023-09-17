@@ -47,8 +47,8 @@
     <string name="thursday">Thursday</string>
     <string name="friday">Friday</string>
     <string name="saturday">Saturday</string>
-    <string name="last_week">Last Week</string>
-    <string name="next_week">Next Week</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
     <string name="diffDayWarning">Please enter two dates on the same day</string>
     <string name="error">Error</string>
     <string name="inputValidAnswers">Please input valid answers before continuing</string>

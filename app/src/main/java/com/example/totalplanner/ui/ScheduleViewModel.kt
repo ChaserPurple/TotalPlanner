@@ -1,6 +1,5 @@
 package com.example.totalplanner.ui
 
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.totalplanner.data.MyDate
@@ -12,7 +11,6 @@ import com.example.totalplanner.data.room.TaskDAO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -60,7 +58,7 @@ class ScheduleViewModel(
     val scheduleUIState: StateFlow<ScheduleUIState> = _scheduleUIState
 
     suspend fun deleteTask(task: Task){
-        var taskEvents = eventDAO.getEventOfTask(task.id)
+        val taskEvents = eventDAO.getEventOfTask(task.id)
         taskEvents.forEach{
             eventDAO.deleteEvent(it)
         }

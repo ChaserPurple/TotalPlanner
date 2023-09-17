@@ -1,10 +1,8 @@
 package com.example.totalplanner.data
 
-import android.util.Log
 import androidx.annotation.StringRes
 import com.example.totalplanner.R
 import java.util.Calendar
-import java.util.Date
 import java.util.GregorianCalendar
 import kotlin.math.abs
 
@@ -77,6 +75,7 @@ class MyDate(
 
     /*
      * Returns a string that is a numeric representation of the day but not time
+     * displays month/day/year
      */
     fun toAmericanString(): String{
         return if(isValid())
@@ -86,6 +85,7 @@ class MyDate(
     }
     /*
      * Returns a string that is a numeric representation of the day but not time
+     * displays day/month/year
      */
     fun toEuropeanString(): String{
         return if(isValid())
@@ -123,8 +123,9 @@ class MyDate(
         return "$h:$minute"
     }
     /*
-     * Acts as a copy constructor, but specific arguments can be passed in to
+     * Acts as a copy constructor, where specific arguments can be passed in to
      * override certain members of the Date being copied
+     * The override keyword throws an error here
      */
     fun copy(
         month: Month = this.month,
@@ -148,6 +149,7 @@ class MyDate(
      * Returns true if two dates are on the same date even if it's a diff time
      */
     fun sameDay(other: MyDate): Boolean{
+        //Make day and year integers in case of leading zeroes
         return other.day.toInt() == day.toInt() &&
                 other.month == month && other.year.toInt() == year.toInt()
     }
