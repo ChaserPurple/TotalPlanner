@@ -87,12 +87,9 @@ fun NewItemScreen(
                 .padding(basePadding * 2)
                 .height(IntrinsicSize.Min)
         ) {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ){
-                //Top tabs to create either task or event
-                if (uiState.updateID == -1)
-                    Row(modifier = Modifier.height(50.dp)) {
+            //Top tabs to create either task or event
+            if (uiState.updateID == -1)
+                Row(modifier = Modifier.height(50.dp)) {
                         Button(
                             modifier = Modifier
                                 .weight(1f)
@@ -134,6 +131,9 @@ fun NewItemScreen(
                             )
                         )
                     }
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ){
                 when (windowSizeClass) {
                     //SMALL SCREENS
                     WindowWidthSizeClass.Compact -> {
@@ -520,46 +520,12 @@ fun NewItemScreen(
         }
     }
 }
-
 @Composable
-fun EarlyDateWarning() {
+fun WarningText(
+    text:String
+){
     Text(
-        text = stringResource(R.string.earlyDateWarning),
-        color = Color.Red
-    )
-}
-@Composable
-fun InvalidDateWarning() {
-    Text(
-        text = stringResource(R.string.badDateWarning),
-        color = Color.Red
-    )
-}
-@Composable
-fun DateOrderWarning() {
-    Text(
-        text = stringResource(R.string.dateOrderWarning),
-        color = Color.Red
-    )
-}
-@Composable
-fun NameWarning() {
-    Text(
-        text = stringResource(R.string.noNameWarning),
-        color = Color.Red
-    )
-}
-@Composable
-fun DeadlineWarning() {
-    Text(
-        text = stringResource(R.string.afterDeadWarning),
-        color = Color.Red
-    )
-}
-@Composable
-fun DiffDayWarning() {
-    Text(
-        text = stringResource(R.string.diffDayWarning),
+        text = text,
         color = Color.Red
     )
 }
@@ -595,7 +561,6 @@ fun IncorrectInputAlert(
         }
     }
 }
-
 @Composable
 fun NameAndDescription(
     modifier: Modifier = Modifier, minLines: Int,
@@ -614,7 +579,7 @@ fun NameAndDescription(
                 .padding(4.dp)
         )
         if(name == "")
-            NameWarning()
+            WarningText(stringResource(R.string.noNameWarning))
         TextField(
             value = desc,
             onValueChange = descChange,
@@ -626,7 +591,6 @@ fun NameAndDescription(
         )
     }
 }
-
 @Composable
 fun ConfirmDeleteDialogue(
     modifier: Modifier = Modifier,
@@ -738,6 +702,7 @@ fun NewEventDialogue(
         }
     }
 }
+
 @Composable
 fun EventDatePickers(
     modifier: Modifier = Modifier,
@@ -768,11 +733,11 @@ fun EventDatePickers(
         )
         if(firstDate.isValid() && secondDate.isValid() ){
             if(!secondDate.after(firstDate))
-                DateOrderWarning()
+                WarningText(stringResource(R.string.diffDayWarning))
             else if(!firstDate.sameDay(secondDate))
-                DiffDayWarning()
+                WarningText(stringResource(R.string.diffDayWarning))
             else if (deadline != null && secondDate.after(deadline))
-                DeadlineWarning()
+                WarningText(stringResource(R.string.afterDeadWarning))
         }
     }
 }
@@ -917,9 +882,9 @@ fun MyDatePicker(
             }
         }
         if(!date.isValid())
-            InvalidDateWarning()
+            WarningText(stringResource(R.string.badDateWarning))
         else if(!date.isFuture())
-            EarlyDateWarning()
+            WarningText(stringResource(R.string.earlyDateWarning))
     }
 }
 @Composable
@@ -1047,10 +1012,11 @@ fun ColorPickerDialogue(
     Dialog(
         onDismissRequest = dismissDialogue
     ){
-        Card (modifier = modifier){
+        Card{
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+                modifier = modifier.verticalScroll(rememberScrollState())
             ) {
                 ColorPicker(
                     modifier = Modifier.padding(4.dp),
@@ -1072,6 +1038,7 @@ fun ColorPicker(
     updateColor: (Color) -> Unit
 ){
     Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
         val controller = rememberColorPickerController()
