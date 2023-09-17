@@ -170,7 +170,7 @@ fun HourMarkers(
                         }
                         else{
                             text = if (j == 1) "12:00 "
-                            else "${j - 1}:00"
+                            else "${j - 1}:00 "
                             text += if (i == 1) "a.m."
                             else "p.m."
                         }

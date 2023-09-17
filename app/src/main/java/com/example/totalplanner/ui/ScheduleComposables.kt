@@ -56,14 +56,14 @@ fun ScheduleTopBar(
         ){
             IconButton(onClick = prevAction) {
                 Icon(
-                    painter = painterResource(android.R.drawable.arrow_up_float),
+                    painter = painterResource(R.drawable.left_arrow),
                     contentDescription = stringResource(R.string.previous)
                 )
             }
             Text(text)
             IconButton(onClick = nextAction) {
                 Icon(
-                    painter = painterResource(android.R.drawable.arrow_down_float),
+                    painter = painterResource(R.drawable.right_arrow),
                     contentDescription = stringResource(R.string.next)
                 )
             }

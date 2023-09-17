@@ -2,6 +2,7 @@ package com.example.totalplanner.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -86,59 +87,57 @@ fun NewItemScreen(
                 .padding(basePadding * 2)
                 .height(IntrinsicSize.Min)
         ) {
-            //Top tabs to create either task or event
-            if(uiState.updateID == -1)
-                Row(modifier = Modifier.height(50.dp)) {
-                Button(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    shape = RectangleShape,
-                    onClick = { viewModel.updateMode(false) },
-                    content = { Text(stringResource(R.string.event)) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor =
-                        if (uiState.newTask)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            Color.Transparent,
-                        contentColor =
-                        if (uiState.newTask)
-                            MaterialTheme.colorScheme.onPrimary
-                        else
-                            MaterialTheme.colorScheme.onBackground
-                    )
-                )
-                Button(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    shape = RectangleShape,
-                    onClick = { viewModel.updateMode(true) },
-                    content = { Text(stringResource(R.string.task)) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor =
-                        if (!uiState.newTask)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            Color.Transparent,
-                        contentColor =
-                        if (!uiState.newTask)
-                            MaterialTheme.colorScheme.onPrimary
-                        else
-                            Color.DarkGray
-                    )
-                )
-            }
-            when (windowSizeClass) {
-                //SMALL SCREENS
-                WindowWidthSizeClass.Compact -> {
-                    if (uiState.newTask) {
-                        Column(
-                            modifier = Modifier.verticalScroll(
-                                rememberScrollState()
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ){
+                //Top tabs to create either task or event
+                if (uiState.updateID == -1)
+                    Row(modifier = Modifier.height(50.dp)) {
+                        Button(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            shape = RectangleShape,
+                            onClick = { viewModel.updateMode(false) },
+                            content = { Text(stringResource(R.string.event)) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor =
+                                if (uiState.newTask)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    Color.Transparent,
+                                contentColor =
+                                if (uiState.newTask)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onBackground
                             )
-                        ) {
+                        )
+                        Button(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            shape = RectangleShape,
+                            onClick = { viewModel.updateMode(true) },
+                            content = { Text(stringResource(R.string.task)) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor =
+                                if (!uiState.newTask)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    Color.Transparent,
+                                contentColor =
+                                if (!uiState.newTask)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    Color.DarkGray
+                            )
+                        )
+                    }
+                when (windowSizeClass) {
+                    //SMALL SCREENS
+                    WindowWidthSizeClass.Compact -> {
+                        if (uiState.newTask) {
                             NameAndDescription(
                                 Modifier.padding(basePadding), 3,
                                 uiState.name, { viewModel.updateName(it) },
@@ -159,9 +158,11 @@ fun NewItemScreen(
                                     end = basePadding
                                 ),
                                 date = uiState.deadlineDate,
-                                updateDate = {coroutineScope.launch{
-                                    viewModel.updateDeadline(it)
-                                }}
+                                updateDate = {
+                                    coroutineScope.launch {
+                                        viewModel.updateDeadline(it)
+                                    }
+                                }
                             )
                             ColorDisplay(
                                 modifier = Modifier.padding(basePadding),
@@ -178,7 +179,7 @@ fun NewItemScreen(
                                 showDialogue = { first: MyDate, second: MyDate, ndx: Int ->
                                     viewModel.showDateDialogue(first, second, ndx)
                                 },
-                                popFromList = {e: Pair<Pair<MyDate, MyDate>,Int>, ndx: Int ->
+                                popFromList = { e: Pair<Pair<MyDate, MyDate>, Int>, ndx: Int ->
                                     viewModel.confirmDeletion(e, ndx)
                                 },
                                 showAlert = { viewModel.updateInputAlert(true) },
@@ -187,11 +188,7 @@ fun NewItemScreen(
                                 hour24 = settingsUIState.value.hour24
                             )
                         }
-                    }
-                    else {
-                        Column(
-                            modifier = Modifier.verticalScroll(rememberScrollState())
-                        ) {
+                        else {
                             NameAndDescription(
                                 Modifier.padding(basePadding), 3,
                                 uiState.name, { viewModel.updateName(it) },
@@ -211,277 +208,276 @@ fun NewItemScreen(
                             )
                         }
                     }
-                }
-                //MEDIUM SCREENS
-                WindowWidthSizeClass.Medium -> {
-                    if (uiState.newTask) {
-                        Row {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1.4f)
-                                    .height(IntrinsicSize.Min)
-                            ) {
-                                NameAndDescription(
-                                    Modifier.padding(basePadding), 3,
-                                    uiState.name, { viewModel.updateName(it) },
-                                    uiState.desc, { viewModel.updateDesc(it) }
-                                )
-                                Text(
-                                    modifier = Modifier.padding(
-                                        top = basePadding,
-                                        start = basePadding,
-                                        end = basePadding
-                                    ),
-                                    text = stringResource(R.string.deadline)
-                                )
-                                MyDatePicker(
-                                    modifier = Modifier.padding(
-                                        top = basePadding / 2,
-                                        start = basePadding,
-                                        end = basePadding
-                                    ),
-                                    date = uiState.deadlineDate,
-                                    updateDate = { date: MyDate ->
-                                        coroutineScope.launch {
-                                            viewModel.updateDeadline(d = date)
-                                        }
-                                    }
-                                )
-                                ColorDisplay(
-                                    modifier = Modifier.padding(basePadding),
-                                    color = uiState.color,
-                                    openDialogue = {
-                                        viewModel.updateColorDialogue(true)
-                                    }
-                                )
-                            }
-                            EventList(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(400.dp)
-                                    .padding(basePadding),
-                                eventsList = uiState.taskEvents,
-                                deadline = uiState.deadlineDate,
-                                showDialogue = { first: MyDate, second: MyDate, ndx: Int ->
-                                    viewModel.showDateDialogue(
-                                        first, second, ndx
+                    //MEDIUM SCREENS
+                    WindowWidthSizeClass.Medium -> {
+                        if (uiState.newTask) {
+                            Row {
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1.4f)
+                                        .height(IntrinsicSize.Min)
+                                ) {
+                                    NameAndDescription(
+                                        Modifier.padding(basePadding), 3,
+                                        uiState.name, { viewModel.updateName(it) },
+                                        uiState.desc, { viewModel.updateDesc(it) }
                                     )
-                                },
-                                popFromList = {e: Pair<Pair<MyDate, MyDate>,Int>, ndx: Int ->
-                                    viewModel.confirmDeletion(e, ndx)
-                                },
-                                showAlert = {
-                                    viewModel.updateInputAlert(true)
-                                },
-                                periodCardHeight = 60.dp,
-                                americanDates = settingsUIState.value.americanDates,
-                                hour24 = settingsUIState.value.hour24
-                            )
-                        }
-                    }
-                    else {
-                        Row {
-                            Column(modifier = Modifier.weight(1f)) {
-                                NameAndDescription(
-                                    Modifier.padding(basePadding), 5,
-                                    uiState.name, { viewModel.updateName(it) },
-                                    uiState.desc, { viewModel.updateDesc(it) }
-                                )
-                                ColorDisplay(
-                                    modifier = Modifier.padding(basePadding),
-                                    color = uiState.color,
-                                    openDialogue = { viewModel.updateColorDialogue(true) }
-                                )
-                            }
-                            EventDatePickers(
-                                modifier = Modifier
-                                    .weight(1.4f)
-                                    .padding(8.dp),
-                                firstDate = uiState.startDate,
-                                updateFirstDate = { viewModel.updateStart(it) },
-                                secondDate = uiState.endDate,
-                                updateSecondDate = { viewModel.updateEnd(it) }
-                            )
-                        }
-                    }
-                }
-                //LARGE SCREENS
-                WindowWidthSizeClass.Expanded -> {
-                    if (uiState.newTask) {
-                        Row {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1.4f)
-                                    .height(IntrinsicSize.Min)
-                            ) {
-                                NameAndDescription(
-                                    Modifier.padding(basePadding * 4), 3,
-                                    uiState.name, { viewModel.updateName(it) },
-                                    uiState.desc, { viewModel.updateDesc(it) }
-                                )
-                                Text(
-                                    modifier = Modifier.padding(
-                                        top = basePadding * 4,
-                                        start = basePadding * 4,
-                                        end = basePadding * 4
-                                    ),
-                                    text = stringResource(R.string.deadline)
-                                )
-                                MyDatePicker(
-                                    modifier = Modifier.padding(
-                                        top = basePadding / 2,
-                                        start = basePadding,
-                                        end = basePadding
-                                    ),
-                                    date = uiState.deadlineDate,
-                                    updateDate = { date: MyDate ->
-                                        coroutineScope.launch {
-                                            viewModel.updateDeadline(d = date)
-                                        }
-                                    }
-                                )
-                                ColorDisplay(
-                                    modifier = Modifier.padding(basePadding * 4),
-                                    color = uiState.color,
-                                    openDialogue = {
-                                        viewModel.updateColorDialogue(true)
-                                    }
-                                )
-                            }
-                            EventList(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(400.dp)
-                                    .padding(basePadding * 4),
-                                eventsList = uiState.taskEvents,
-                                deadline = uiState.deadlineDate,
-                                showDialogue = { first: MyDate, second: MyDate, ndx: Int ->
-                                    viewModel.showDateDialogue(
-                                        first, second, ndx
+                                    Text(
+                                        modifier = Modifier.padding(
+                                            top = basePadding,
+                                            start = basePadding,
+                                            end = basePadding
+                                        ),
+                                        text = stringResource(R.string.deadline)
                                     )
-                                },
-                                popFromList = {e: Pair<Pair<MyDate, MyDate>,Int>, ndx: Int ->
-                                    viewModel.confirmDeletion(e, ndx)
-                                },
-                                showAlert = {
-                                    viewModel.updateInputAlert(true)
-                                },
-                                periodCardHeight = 60.dp,
-                                americanDates = settingsUIState.value.americanDates,
-                                hour24 = settingsUIState.value.hour24
-                            )
-                        }
-                    }
-                    else {
-                        Row {
-                            Column(modifier = Modifier.weight(1f)) {
-                                NameAndDescription(
-                                    Modifier.padding(basePadding * 4), 5,
-                                    uiState.name, { viewModel.updateName(it) },
-                                    uiState.desc, { viewModel.updateDesc(it) }
-                                )
-                                ColorDisplay(
-                                    modifier = Modifier.padding(basePadding * 4),
-                                    color = uiState.color,
-                                    openDialogue = { viewModel.updateColorDialogue(true) }
+                                    MyDatePicker(
+                                        modifier = Modifier.padding(
+                                            top = basePadding / 2,
+                                            start = basePadding,
+                                            end = basePadding
+                                        ),
+                                        date = uiState.deadlineDate,
+                                        updateDate = { date: MyDate ->
+                                            coroutineScope.launch {
+                                                viewModel.updateDeadline(d = date)
+                                            }
+                                        }
+                                    )
+                                    ColorDisplay(
+                                        modifier = Modifier.padding(basePadding),
+                                        color = uiState.color,
+                                        openDialogue = {
+                                            viewModel.updateColorDialogue(true)
+                                        }
+                                    )
+                                }
+                                EventList(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(400.dp)
+                                        .padding(basePadding),
+                                    eventsList = uiState.taskEvents,
+                                    deadline = uiState.deadlineDate,
+                                    showDialogue = { first: MyDate, second: MyDate, ndx: Int ->
+                                        viewModel.showDateDialogue(
+                                            first, second, ndx
+                                        )
+                                    },
+                                    popFromList = { e: Pair<Pair<MyDate, MyDate>, Int>, ndx: Int ->
+                                        viewModel.confirmDeletion(e, ndx)
+                                    },
+                                    showAlert = {
+                                        viewModel.updateInputAlert(true)
+                                    },
+                                    periodCardHeight = 60.dp,
+                                    americanDates = settingsUIState.value.americanDates,
+                                    hour24 = settingsUIState.value.hour24
                                 )
                             }
-                            EventDatePickers(
-                                modifier = Modifier
-                                    .weight(1.4f)
-                                    .padding(8.dp),
-                                firstDate = uiState.startDate,
-                                updateFirstDate = { viewModel.updateStart(it) },
-                                secondDate = uiState.endDate,
-                                updateSecondDate = { viewModel.updateEnd(it) }
-                            )
+                        }
+                        else {
+                            Row {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    NameAndDescription(
+                                        Modifier.padding(basePadding), 5,
+                                        uiState.name, { viewModel.updateName(it) },
+                                        uiState.desc, { viewModel.updateDesc(it) }
+                                    )
+                                    ColorDisplay(
+                                        modifier = Modifier.padding(basePadding),
+                                        color = uiState.color,
+                                        openDialogue = { viewModel.updateColorDialogue(true) }
+                                    )
+                                }
+                                EventDatePickers(
+                                    modifier = Modifier
+                                        .weight(1.4f)
+                                        .padding(8.dp),
+                                    firstDate = uiState.startDate,
+                                    updateFirstDate = { viewModel.updateStart(it) },
+                                    secondDate = uiState.endDate,
+                                    updateSecondDate = { viewModel.updateEnd(it) }
+                                )
+                            }
+                        }
+                    }
+                    //LARGE SCREENS
+                    WindowWidthSizeClass.Expanded -> {
+                        if (uiState.newTask) {
+                            Row {
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1.4f)
+                                        .height(IntrinsicSize.Min)
+                                ) {
+                                    NameAndDescription(
+                                        Modifier.padding(basePadding * 4), 3,
+                                        uiState.name, { viewModel.updateName(it) },
+                                        uiState.desc, { viewModel.updateDesc(it) }
+                                    )
+                                    Text(
+                                        modifier = Modifier.padding(
+                                            top = basePadding * 4,
+                                            start = basePadding * 4,
+                                            end = basePadding * 4
+                                        ),
+                                        text = stringResource(R.string.deadline)
+                                    )
+                                    MyDatePicker(
+                                        modifier = Modifier.padding(
+                                            top = basePadding / 2,
+                                            start = basePadding,
+                                            end = basePadding
+                                        ),
+                                        date = uiState.deadlineDate,
+                                        updateDate = { date: MyDate ->
+                                            coroutineScope.launch {
+                                                viewModel.updateDeadline(d = date)
+                                            }
+                                        }
+                                    )
+                                    ColorDisplay(
+                                        modifier = Modifier.padding(basePadding * 4),
+                                        color = uiState.color,
+                                        openDialogue = {
+                                            viewModel.updateColorDialogue(true)
+                                        }
+                                    )
+                                }
+                                EventList(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(400.dp)
+                                        .padding(basePadding * 4),
+                                    eventsList = uiState.taskEvents,
+                                    deadline = uiState.deadlineDate,
+                                    showDialogue = { first: MyDate, second: MyDate, ndx: Int ->
+                                        viewModel.showDateDialogue(
+                                            first, second, ndx
+                                        )
+                                    },
+                                    popFromList = { e: Pair<Pair<MyDate, MyDate>, Int>, ndx: Int ->
+                                        viewModel.confirmDeletion(e, ndx)
+                                    },
+                                    showAlert = {
+                                        viewModel.updateInputAlert(true)
+                                    },
+                                    periodCardHeight = 60.dp,
+                                    americanDates = settingsUIState.value.americanDates,
+                                    hour24 = settingsUIState.value.hour24
+                                )
+                            }
+                        }
+                        else {
+                            Row {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    NameAndDescription(
+                                        Modifier.padding(basePadding * 4), 5,
+                                        uiState.name, { viewModel.updateName(it) },
+                                        uiState.desc, { viewModel.updateDesc(it) }
+                                    )
+                                    ColorDisplay(
+                                        modifier = Modifier.padding(basePadding * 4),
+                                        color = uiState.color,
+                                        openDialogue = { viewModel.updateColorDialogue(true) }
+                                    )
+                                }
+                                EventDatePickers(
+                                    modifier = Modifier
+                                        .weight(1.4f)
+                                        .padding(8.dp),
+                                    firstDate = uiState.startDate,
+                                    updateFirstDate = { viewModel.updateStart(it) },
+                                    secondDate = uiState.endDate,
+                                    updateSecondDate = { viewModel.updateEnd(it) }
+                                )
+                            }
                         }
                     }
                 }
-            }
-            //Action Buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                OutlinedButton(
-                    modifier = Modifier.padding(4.dp),
-                    onClick = {
-                        coroutineScope.launch{
-                            viewModel.restoreDeletions()
-                            viewModel.reset(submitNav)
-                        }
-                    },
-                    content = { Text(stringResource(R.string.cancel)) }
-                )
-                Button(
-                    modifier = Modifier.padding(4.dp),
-                    onClick = {
-                        if (viewModel.noErrors()) {
-                            if(uiState.updateID == -1){
-                                if (uiState.newTask)
-                                    coroutineScope.launch {
-                                        viewModel.saveTask(
-                                            task = Task(
-                                                name = uiState.name,
-                                                description = uiState.desc,
-                                                deadline = uiState.deadlineDate,
-                                                color = uiState.color.toMyColor()
-                                            ),
-                                            events = uiState.taskEvents
-                                        )
-                                    }
-                                else
-                                    coroutineScope.launch {
-                                        viewModel.saveEvent(
-                                            Event(
-                                                name = uiState.name,
-                                                description = uiState.desc,
-                                                startDate = uiState.startDate,
-                                                endDate = uiState.endDate,
-                                                color = uiState.color.toMyColor(),
-                                                taskID = -1
-                                            )
-                                        )
-                                    }
+                //Action Buttons
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    OutlinedButton(
+                        modifier = Modifier.padding(4.dp),
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModel.restoreDeletions()
+                                viewModel.reset(submitNav)
                             }
-                            else{
-                                if (uiState.newTask)
-                                    coroutineScope.launch {
-                                        viewModel.updateTask(
-                                            task = Task(
-                                                id = uiState.updateID,
-                                                name = uiState.name,
-                                                description = uiState.desc,
-                                                deadline = uiState.deadlineDate,
-                                                color = uiState.color.toMyColor()
-                                            ),
-                                            eventsList = uiState.taskEvents
-                                        )
-                                    }
-                                else
-                                    coroutineScope.launch {
-                                        viewModel.updateEvent(
-                                            event = Event(
-                                                id = uiState.updateID,
-                                                name = uiState.name,
-                                                description = uiState.desc,
-                                                startDate = uiState.startDate,
-                                                endDate = uiState.endDate,
-                                                color = uiState.color.toMyColor(),
-                                                taskID = -1
+                        },
+                        content = { Text(stringResource(R.string.cancel)) }
+                    )
+                    Button(
+                        modifier = Modifier.padding(4.dp),
+                        onClick = {
+                            if (viewModel.noErrors()) {
+                                if (uiState.updateID == -1) {
+                                    if (uiState.newTask)
+                                        coroutineScope.launch {
+                                            viewModel.saveTask(
+                                                task = Task(
+                                                    name = uiState.name,
+                                                    description = uiState.desc,
+                                                    deadline = uiState.deadlineDate,
+                                                    color = uiState.color.toMyColor()
+                                                ),
+                                                events = uiState.taskEvents
                                             )
-                                        )
-                                    }
-                            }
-                            viewModel.reset(submitNav)
-                        } else
-                            viewModel.updateInputAlert(true)
-                    },
-                    content = { Text(stringResource(R.string.confirm)) }
-                )
+                                        }
+                                    else
+                                        coroutineScope.launch {
+                                            viewModel.saveEvent(
+                                                Event(
+                                                    name = uiState.name,
+                                                    description = uiState.desc,
+                                                    startDate = uiState.startDate,
+                                                    endDate = uiState.endDate,
+                                                    color = uiState.color.toMyColor(),
+                                                    taskID = -1
+                                                )
+                                            )
+                                        }
+                                } else {
+                                    if (uiState.newTask)
+                                        coroutineScope.launch {
+                                            viewModel.updateTask(
+                                                task = Task(
+                                                    id = uiState.updateID,
+                                                    name = uiState.name,
+                                                    description = uiState.desc,
+                                                    deadline = uiState.deadlineDate,
+                                                    color = uiState.color.toMyColor()
+                                                ),
+                                                eventsList = uiState.taskEvents
+                                            )
+                                        }
+                                    else
+                                        coroutineScope.launch {
+                                            viewModel.updateEvent(
+                                                event = Event(
+                                                    id = uiState.updateID,
+                                                    name = uiState.name,
+                                                    description = uiState.desc,
+                                                    startDate = uiState.startDate,
+                                                    endDate = uiState.endDate,
+                                                    color = uiState.color.toMyColor(),
+                                                    taskID = -1
+                                                )
+                                            )
+                                        }
+                                }
+                                viewModel.reset(submitNav)
+                            } else
+                                viewModel.updateInputAlert(true)
+                        },
+                        content = { Text(stringResource(R.string.confirm)) }
+                    )
+                }
             }
         }
         if (uiState.showInput) {

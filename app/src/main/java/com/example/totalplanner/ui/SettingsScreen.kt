@@ -3,6 +3,7 @@ package com.example.totalplanner.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -65,11 +66,14 @@ fun SettingSwitchOption(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ){
-        Column{
+        Column(
+            modifier = Modifier.weight(10f)
+        ){
             Text(
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                text = name
+                text = name,
+                lineHeight = 4.sp
             )
             if(summary != null)
                 Text(
@@ -77,7 +81,9 @@ fun SettingSwitchOption(
                     text = summary
                 )
         }
+        Spacer(modifier = Modifier.weight(.5f))
         Switch(
+            modifier = Modifier.weight(2f),
             checked = checked,
             onCheckedChange = { onCheckedChange(it) }
         )
