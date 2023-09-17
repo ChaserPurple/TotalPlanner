@@ -317,20 +317,16 @@ fun ForegroundColumn(
             )
             ndx++
         }
-    }
-    val curr = MyDate()
-    if(date.sameDay(curr)) {
-        Card(
-            modifier = Modifier
-                .offset(y = minuteHeight * date.minuteDifference(curr))
-                .height(15.dp)
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
-            shape = RectangleShape,
-            content = {}
-        )
+        val curr = MyDate()
+        if(date.sameDay(curr)) {
+            Divider(
+                modifier = Modifier
+                    .offset(y = minuteHeight * date.minuteDifference(curr))
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary,
+                thickness = 2.dp
+            )
+        }
     }
 }
 @Composable

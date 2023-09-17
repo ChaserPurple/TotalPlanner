@@ -215,7 +215,8 @@ fun NewItemScreen(
                                 Column(
                                     modifier = Modifier
                                         .weight(1.4f)
-                                        .height(IntrinsicSize.Min)
+                                        .height(IntrinsicSize.Min),
+                                    verticalArrangement = Arrangement.Top
                                 ) {
                                     NameAndDescription(
                                         Modifier.padding(basePadding), 3,
@@ -277,7 +278,10 @@ fun NewItemScreen(
                         }
                         else {
                             Row {
-                                Column(modifier = Modifier.weight(1f)) {
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.Top
+                                ) {
                                     NameAndDescription(
                                         Modifier.padding(basePadding), 5,
                                         uiState.name, { viewModel.updateName(it) },
@@ -308,7 +312,8 @@ fun NewItemScreen(
                                 Column(
                                     modifier = Modifier
                                         .weight(1.4f)
-                                        .height(IntrinsicSize.Min)
+                                        .height(IntrinsicSize.Min),
+                                    verticalArrangement = Arrangement.Top
                                 ) {
                                     NameAndDescription(
                                         Modifier.padding(basePadding * 4), 3,
@@ -370,7 +375,10 @@ fun NewItemScreen(
                         }
                         else {
                             Row {
-                                Column(modifier = Modifier.weight(1f)) {
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.Top
+                                ) {
                                     NameAndDescription(
                                         Modifier.padding(basePadding * 4), 5,
                                         uiState.name, { viewModel.updateName(it) },
@@ -488,7 +496,9 @@ fun NewItemScreen(
         }
         else if (uiState.showDatesDialogue) {
             NewEventDialogue(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier
+                    .padding(basePadding)
+                    .verticalScroll(rememberScrollState()),
                 deadline = uiState.deadlineDate,
                 firstDate = uiState.startDate,
                 updateFirstDate = { viewModel.updateStart(it) },
@@ -501,7 +511,9 @@ fun NewItemScreen(
         //NOTE: Anything used to display a color picker was created by skydoves
         else if (uiState.showColorDialogue) {
             ColorPickerDialogue(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier
+                    .padding(20.dp)
+                    .verticalScroll(rememberScrollState()),
                 updateColor = { viewModel.updateColor(it) },
                 dismissDialogue = { viewModel.updateColorDialogue(false) }
             )
@@ -562,36 +574,6 @@ fun IncorrectInputAlert(
     }
 }
 @Composable
-fun NameAndDescription(
-    modifier: Modifier = Modifier, minLines: Int,
-    name: String, nameChange: (String) -> Unit,
-    desc: String, descChange: (String) -> Unit
-){
-    Column (modifier = modifier) {
-        TextField(
-            value = name,
-            onValueChange = {
-                nameChange(it)
-            },
-            label = { Text(stringResource(R.string.name)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
-        )
-        if(name == "")
-            WarningText(stringResource(R.string.noNameWarning))
-        TextField(
-            value = desc,
-            onValueChange = descChange,
-            label = {Text(stringResource(R.string.desc) + stringResource(R.string.optional))},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
-            minLines = minLines
-        )
-    }
-}
-@Composable
 fun ConfirmDeleteDialogue(
     modifier: Modifier = Modifier,
     pair: Pair<Pair<MyDate, MyDate>,Int>,
@@ -645,6 +627,40 @@ fun ConfirmDeleteDialogue(
         }
     }
 }
+
+@Composable
+fun NameAndDescription(
+    modifier: Modifier = Modifier, minLines: Int,
+    name: String, nameChange: (String) -> Unit,
+    desc: String, descChange: (String) -> Unit
+){
+    Column (modifier = modifier) {
+        TextField(
+            value = name,
+            onValueChange = {
+                nameChange(it)
+            },
+            label = { Text(stringResource(R.string.name)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
+            singleLine = true
+        )
+        if(name == "")
+            WarningText(stringResource(R.string.noNameWarning))
+        TextField(
+            value = desc,
+            onValueChange = descChange,
+            label = {Text(stringResource(R.string.desc) + stringResource(R.string.optional))},
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
+            minLines = minLines,
+            maxLines = minLines
+        )
+    }
+}
+
 @Composable
 fun NewEventDialogue(
     modifier:Modifier = Modifier,
@@ -702,7 +718,6 @@ fun NewEventDialogue(
         }
     }
 }
-
 @Composable
 fun EventDatePickers(
     modifier: Modifier = Modifier,
@@ -1016,7 +1031,7 @@ fun ColorPickerDialogue(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = modifier.verticalScroll(rememberScrollState())
+                modifier = modifier
             ) {
                 ColorPicker(
                     modifier = Modifier.padding(4.dp),
